@@ -8,7 +8,6 @@ public class WebToCPPTest : ModuleRules
 	{
 		PrivateDependencyModuleNames.AddRange(new string[] { "WebBrowserWidget" });
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay", "WebBrowser", "UMG" });
 	}
 }
