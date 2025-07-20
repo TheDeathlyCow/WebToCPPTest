@@ -1,25 +1,20 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-    <style>
-        .button{
-            background-color: aqua;
+    <title>UE4 WebBrowser Communication</title>
+    <script>
+        // This function will call the C++ function
+        function sendToUnreal() {
+            if (typeof ue4 !== 'undefined' && ue4.ReceiveMessageFromJS) {
+                ue4.ReceiveMessageFromJS("Hello from JavaScript!");
+            } else {
+                console.log("UE4 object is not ready.");
+            }
         }
-    </style>
+    </script>
 </head>
-
 <body>
-<h1>My First Interface !</h1>
-<button id="firstbutton" class="button">Click on me !</button>
-<script>
-    /*Put the javascript here */
-    let buttonAlert = document.getElementById("firstbutton");
-    buttonAlert.onclick = function(){
-        alert("you clicked on me !")
-    };
-
-</script>
+<h1>UE4 WebBrowser Communication</h1>
+<button onclick="sendToUnreal()">Send Message to C++</button>
 </body>
-
 </html>
