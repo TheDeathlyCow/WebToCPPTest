@@ -12,8 +12,33 @@ AWebToCPPTestHUD::AWebToCPPTestHUD()
 	// Set the crosshair texture
 	static ConstructorHelpers::FObjectFinder<UTexture2D> CrosshairTexObj(TEXT("/Game/FirstPerson/Textures/FirstPersonCrosshair"));
 	CrosshairTex = CrosshairTexObj.Object;
+
+	static ConstructorHelpers::FClassFinder<UUserWidget> BrowserWidgetBPClass(TEXT("/Game/MyBrowserWidget_WBP"));
+	BrowserWidgetClass = BrowserWidgetBPClass.Class;
 }
 
+void AWebToCPPTestHUD::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (BrowserWidgetClass)
+	{
+		BrowserWidgetInstance = CreateWidget<UUserWidget>(GetWorld(), BrowserWidgetClass);
+		if (BrowserWidgetInstance)
+		{
+			BrowserWidgetInstance->AddToViewport();
+			UE_LOG(LogTemp, Log, TEXT("Browser widget added to viewport"));
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("Failed to create browser widget"));
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("BrowserWidgetClass is null"));
+	}
+}
 
 void AWebToCPPTestHUD::DrawHUD()
 {

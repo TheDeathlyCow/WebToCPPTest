@@ -5,7 +5,7 @@
 #include "WebBrowser.h"
 #include "UBrowserWidget.generated.h"
 
-UCLASS()
+UCLASS(Blueprintable)
 class UBrowserWidget : public UUserWidget
 {
 	GENERATED_BODY()

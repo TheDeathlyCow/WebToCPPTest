@@ -28,6 +28,6 @@ void UBrowserWidget::HandleUrlChanged(const FText& ButtonText)
 
 FString UBrowserWidget::GetLocalHtmlPath() const
 {
-	FString AbsolutePath = FPaths::ConvertRelativePathToFull(FPaths::ProjectContentDir() / TEXT("UI/index.html"));
+	FString AbsolutePath = FPaths::ConvertRelativePathToFull(FPaths::ProjectContentDir() / TEXT("Web/index.html"));
 	return FString::Printf(TEXT("file:///%s"), *AbsolutePath.Replace(TEXT("\\"), TEXT("/")));
 }
