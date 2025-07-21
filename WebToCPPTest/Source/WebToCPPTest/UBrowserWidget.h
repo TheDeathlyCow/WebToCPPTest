@@ -29,4 +29,7 @@ private:
 
 	UFUNCTION()
 	static TArray<FString> GetAssetNames();
+
+	UFUNCTION()
+	static bool GetQueryParamsFromUrl(const FString& Url, TMap<FString, FString>& QueryParams);
 };

@@ -1,4 +1,5 @@
 ﻿#include "UBrowserWidget.h"
+
 #include "AssetRegistryModule.h"
 #include "IAssetRegistry.h"
 
@@ -22,13 +23,31 @@ void UBrowserWidget::NativeConstruct()
 
 void UBrowserWidget::HandleUrlChanged(const FText& NewUrl)
 {
-	if (WebBrowser)
+	if (!WebBrowser)
 	{
-		FString UrlString = NewUrl.ToString();
-		UE_LOG(LogTemp, Display, TEXT("Data received from browser: %s"), *UrlString);
-
-		ReloadAssetData();
+		UE_LOG(LogTemp, Error, TEXT("Web browser not bound"));
+		return;
 	}
+
+	FString UrlString = NewUrl.ToString();
+	ReloadAssetData();
+
+	TMap<FString, FString> QueryParams;
+	if (GetQueryParamsFromUrl(UrlString, QueryParams))
+	{
+		FString AssetName = QueryParams[TEXT("assetName")];
+		UE_LOG(LogTemp, Display, TEXT("Selected Asset: %s"), *AssetName);
+
+		FString JSCommand = FString::Printf(TEXT("setSelectedAsset('%s');"), *AssetName);
+		WebBrowser->ExecuteJavascript(JSCommand);
+		UE_LOG(LogTemp, Display, TEXT("Data script executed in browser: %s"), *JSCommand);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Unable to parse query params"));
+	}
+
+	UE_LOG(LogTemp, Display, TEXT("Data received from browser: %s"), *UrlString);
 }
 
 FString UBrowserWidget::GetIndexHtmlPath()
@@ -53,13 +72,13 @@ void UBrowserWidget::ReloadAssetData() const
 	}
 	JsonArray += TEXT("]");
 
-	FString JSCommand= FString::Printf(TEXT("insertAssets(%s);"), *JsonArray);
+	FString JSCommand = FString::Printf(TEXT("insertAssets(%s);"), *JsonArray);
 	WebBrowser->ExecuteJavascript(JSCommand);
 
 	FString& LogMessage = JSCommand;
 	if (AssetList.Num() > 10)
 	{
-		LogMessage = FString::Printf(TEXT("insertAssets([/* an array with %d items */]);"), AssetList.Num()); 
+		LogMessage = FString::Printf(TEXT("insertAssets([/* an array with %d items */]);"), AssetList.Num());
 	}
 
 	UE_LOG(LogTemp, Display, TEXT("Data script executed in browser: %s"), *LogMessage);
@@ -69,7 +88,8 @@ TArray<FString> UBrowserWidget::GetAssetNames()
 {
 	TArray<FString> AssetNames;
 
-	FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
+	FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<
+		FAssetRegistryModule>("AssetRegistry");
 	IAssetRegistry& AssetRegistry = AssetRegistryModule.Get();
 
 	FARFilter Filter;
@@ -85,4 +105,29 @@ TArray<FString> UBrowserWidget::GetAssetNames()
 	}
 
 	return AssetNames;
+}
+
+bool UBrowserWidget::GetQueryParamsFromUrl(const FString& Url, TMap<FString, FString>& QueryParams)
+{
+	int32 QueryIndex;
+	if (Url.FindChar('?', QueryIndex))
+	{
+		FString QueryString = Url.Mid(QueryIndex + 1);
+
+		TArray<FString> Pairs;
+		QueryString.ParseIntoArray(Pairs, TEXT("&"), true);
+
+		for (const FString& Pair : Pairs)
+		{
+			FString Key, Value;
+			if (Pair.Split(TEXT("="), &Key, &Value))
+			{
+				QueryParams.Add(Key, Value);
+			}
+		}
+
+		return true;
+	}
+
+	return false;
 }

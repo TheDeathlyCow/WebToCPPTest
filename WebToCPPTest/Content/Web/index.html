@@ -6,6 +6,7 @@
 </head>
 <body>
 <h1>Available Assets</h1>
+<h2 id="lastSelected"></h2>
 <ul id="assetList">
     <!-- Items will be populated here -->
 </ul>
@@ -29,10 +30,16 @@
         });
     }
     
+    // called from C++ when it receives a selected asset name
+    function setSelectedAsset(assetName) {
+        const lastSelected = document.getElementById('lastSelected');
+        lastSelected.textContent = `Last Selected: ${assetName}`;
+    }
+    
     function onAssetSelected(assetName) {
         // JS side of the hack: update the query params with some data which reloads the page, and invokes the 
         // WebBrowser::OnUrlChanged event in C++ 
-        window.location.search = "?assetName=" + assetName;
+        window.location.search = `?assetName=${assetName}`;
     }
 </script>
 </body>
