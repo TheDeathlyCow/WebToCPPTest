@@ -1,4 +1,6 @@
 ﻿#include "UBrowserWidget.h"
+#include "AssetRegistryModule.h"
+#include "IAssetRegistry.h"
 
 void UBrowserWidget::NativeConstruct()
 {
@@ -38,7 +40,7 @@ FString UBrowserWidget::GetIndexHtmlPath()
 // this is called whenever the url is changed, including on the first load
 void UBrowserWidget::ReloadAssetData() const
 {
-	TArray<FString> AssetList = { TEXT("Asset001"), TEXT("Asset002"), TEXT("Asset003") };
+	TArray<FString> AssetList = GetAssetNames();
 
 	FString JsonArray = TEXT("[");
 	for (int32 i = 0; i < AssetList.Num(); ++i)
@@ -50,9 +52,37 @@ void UBrowserWidget::ReloadAssetData() const
 		}
 	}
 	JsonArray += TEXT("]");
-	
-	FString JSCommand = FString::Printf(TEXT("insertAssets(%s);"), *JsonArray);
+
+	FString JSCommand= FString::Printf(TEXT("insertAssets(%s);"), *JsonArray);
 	WebBrowser->ExecuteJavascript(JSCommand);
-	
-	UE_LOG(LogTemp, Display, TEXT("Data script executed in browser: %s"), *JSCommand);
+
+	FString& LogMessage = JSCommand;
+	if (AssetList.Num() > 10)
+	{
+		LogMessage = FString::Printf(TEXT("insertAssets([/* an array with %d items */]);"), AssetList.Num()); 
+	}
+
+	UE_LOG(LogTemp, Display, TEXT("Data script executed in browser: %s"), *LogMessage);
+}
+
+TArray<FString> UBrowserWidget::GetAssetNames()
+{
+	TArray<FString> AssetNames;
+
+	FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
+	IAssetRegistry& AssetRegistry = AssetRegistryModule.Get();
+
+	FARFilter Filter;
+	Filter.PackagePaths.Add("/");
+	Filter.bRecursivePaths = true;
+
+	TArray<FAssetData> AssetDataList;
+	AssetRegistry.GetAssets(Filter, AssetDataList);
+
+	for (const FAssetData& AssetData : AssetDataList)
+	{
+		AssetNames.Add(AssetData.AssetName.ToString());
+	}
+
+	return AssetNames;
 }

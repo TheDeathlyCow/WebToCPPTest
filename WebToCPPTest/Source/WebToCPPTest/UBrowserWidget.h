@@ -26,4 +26,7 @@ private:
 
 	UFUNCTION()
 	void ReloadAssetData() const;
+
+	UFUNCTION()
+	static TArray<FString> GetAssetNames();
 };

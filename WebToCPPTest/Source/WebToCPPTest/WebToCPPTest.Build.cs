@@ -6,7 +6,7 @@ public class WebToCPPTest : ModuleRules
 {
 	public WebToCPPTest(ReadOnlyTargetRules Target) : base(Target)
 	{
-		PrivateDependencyModuleNames.AddRange(new string[] { "WebBrowserWidget" });
+		PrivateDependencyModuleNames.AddRange(new string[] { "WebBrowserWidget", "AssetRegistry" });
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay", "WebBrowser", "UMG" });
 	}
