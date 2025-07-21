@@ -19,8 +19,8 @@ public:
 
 private:
 	UFUNCTION()
-	void HandleUrlChanged(const FText& ButtonText);
+	void HandleUrlChanged(const FText& NewUrl);
 
 	UFUNCTION()
-	FString GetLocalHtmlPath() const;
+	static FString GetLocalHtmlPath();
 };

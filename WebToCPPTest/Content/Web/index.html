@@ -1,20 +1,17 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <title>UE4 WebBrowser Communication</title>
     <script>
-        // This function will call the C++ function
-        function sendToUnreal() {
-            if (typeof ue4 !== 'undefined' && ue4.ReceiveMessageFromJS) {
-                ue4.ReceiveMessageFromJS("Hello from JavaScript!");
-            } else {
-                console.log("UE4 object is not ready.");
-            }
+        function sendToUnreal(data) {
+            // JS side of the hack: update the query params with some data which reloads the page, and invokes the 
+            // WebBrowser::OnUrlChanged event in C++ 
+            window.location.search = "?data=" + data;
         }
     </script>
 </head>
 <body>
 <h1>UE4 WebBrowser Communication</h1>
-<button onclick="sendToUnreal()">Send Message to C++</button>
+<button onclick="sendToUnreal('Kia Ora C++')">Send Message to C++</button>
 </body>
 </html>

@@ -14,19 +14,21 @@ void UBrowserWidget::NativeConstruct()
 
 	WebBrowser->LoadURL(GetLocalHtmlPath());
 
+	// Use the URL as a hack to communicate JS-to-C++, as the web browser API available is extremely limited
+	// otherwise.
 	WebBrowser->OnUrlChanged.AddDynamic(this, &UBrowserWidget::HandleUrlChanged);
 }
 
-void UBrowserWidget::HandleUrlChanged(const FText& ButtonText)
+void UBrowserWidget::HandleUrlChanged(const FText& NewUrl)
 {
 	if (WebBrowser)
 	{
-		FString JS = TEXT("console.log('C++ saw you changed url :o');");
-		WebBrowser->ExecuteJavascript(JS);
+		FString UrlString = NewUrl.ToString();
+		UE_LOG(LogTemp, Display, TEXT("Data received from browser: %s"), *UrlString);
 	}
 }
 
-FString UBrowserWidget::GetLocalHtmlPath() const
+FString UBrowserWidget::GetLocalHtmlPath()
 {
 	FString AbsolutePath = FPaths::ConvertRelativePathToFull(FPaths::ProjectContentDir() / TEXT("Web/index.html"));
 	return FString::Printf(TEXT("file:///%s"), *AbsolutePath.Replace(TEXT("\\"), TEXT("/")));
