@@ -1,17 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>UE4 WebBrowser Communication</title>
-    <script>
-        function sendToUnreal(data) {
-            // JS side of the hack: update the query params with some data which reloads the page, and invokes the 
-            // WebBrowser::OnUrlChanged event in C++ 
-            window.location.search = "?data=" + data;
-        }
-    </script>
+    <meta charset="UTF-8" />
+    <title>Unreal Engine Asset Browser</title>
 </head>
 <body>
-<h1>UE4 WebBrowser Communication</h1>
-<button onclick="sendToUnreal('Kia Ora C++')">Send Message to C++</button>
+<h1>Available Assets</h1>
+<ul id="assetList">
+    <!-- Items will be populated here -->
+</ul>
+
+<script>
+    function insertAssets(assets) {
+        const list = document.getElementById('assetList');
+
+        // clear items first 
+        while (list.firstChild) {
+            list.removeChild(list.firstChild);
+        }
+        
+        assets.forEach(assetName => {
+            const li = document.createElement('li');
+            li.textContent = assetName; 
+            li.onclick = () => {
+                onAssetSelected(assetName)
+            };
+            list.appendChild(li);
+        });
+    }
+    
+    function onAssetSelected(assetName) {
+        // JS side of the hack: update the query params with some data which reloads the page, and invokes the 
+        // WebBrowser::OnUrlChanged event in C++ 
+        window.location.search = "?assetName=" + assetName;
+    }
+</script>
 </body>
 </html>

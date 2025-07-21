@@ -10,12 +10,11 @@ void UBrowserWidget::NativeConstruct()
 		return;
 	}
 
-	WebBrowser->ExecuteJavascript(TEXT("console.log('Hello from C++!');"));
+	WebBrowser->LoadURL(GetIndexHtmlPath());
 
-	WebBrowser->LoadURL(GetLocalHtmlPath());
-
-	// Use the URL as a hack to communicate JS-to-C++, as the web browser API available is extremely limited
-	// otherwise.
+	// I use this hack to communicate from JS to C++, as the web browser API available is extremely limited otherwise.
+	// Essentially, it works by having the JS side update the query params of the window, which changes the URL without
+	// changing the page, and allows JS to pass arbitrary data that C++ can pick up. 
 	WebBrowser->OnUrlChanged.AddDynamic(this, &UBrowserWidget::HandleUrlChanged);
 }
 
@@ -25,11 +24,35 @@ void UBrowserWidget::HandleUrlChanged(const FText& NewUrl)
 	{
 		FString UrlString = NewUrl.ToString();
 		UE_LOG(LogTemp, Display, TEXT("Data received from browser: %s"), *UrlString);
+
+		ReloadAssetData();
 	}
 }
 
-FString UBrowserWidget::GetLocalHtmlPath()
+FString UBrowserWidget::GetIndexHtmlPath()
 {
 	FString AbsolutePath = FPaths::ConvertRelativePathToFull(FPaths::ProjectContentDir() / TEXT("Web/index.html"));
 	return FString::Printf(TEXT("file:///%s"), *AbsolutePath.Replace(TEXT("\\"), TEXT("/")));
+}
+
+// this is called whenever the url is changed, including on the first load
+void UBrowserWidget::ReloadAssetData() const
+{
+	TArray<FString> AssetList = { TEXT("Asset001"), TEXT("Asset002"), TEXT("Asset003") };
+
+	FString JsonArray = TEXT("[");
+	for (int32 i = 0; i < AssetList.Num(); ++i)
+	{
+		JsonArray += FString::Printf(TEXT("\"%s\""), *AssetList[i].ReplaceCharWithEscapedChar());
+		if (i < AssetList.Num() - 1)
+		{
+			JsonArray += TEXT(",");
+		}
+	}
+	JsonArray += TEXT("]");
+	
+	FString JSCommand = FString::Printf(TEXT("insertAssets(%s);"), *JsonArray);
+	WebBrowser->ExecuteJavascript(JSCommand);
+	
+	UE_LOG(LogTemp, Display, TEXT("Data script executed in browser: %s"), *JSCommand);
 }

@@ -22,5 +22,8 @@ private:
 	void HandleUrlChanged(const FText& NewUrl);
 
 	UFUNCTION()
-	static FString GetLocalHtmlPath();
+	static FString GetIndexHtmlPath();
+
+	UFUNCTION()
+	void ReloadAssetData() const;
 };
